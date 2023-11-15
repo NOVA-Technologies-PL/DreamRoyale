@@ -12,6 +12,7 @@ namespace ClashRoyale.Logic.Home.Decks
         private static SpellsOther[] _spellsOther;
         private static SpellsBuildings[] _spellsBuildings;
         private static SpellsCharacters[] _spellsCharacters;
+        private static SpellsHeroes[] _spellsHeroes;
 
         public static void Initialize()
         {
@@ -22,6 +23,8 @@ namespace ClashRoyale.Logic.Home.Decks
                 .Where(s => !s.NotInUse).ToArray();
 
             _spellsCharacters = Csv.Tables.Get(Csv.Files.SpellsCharacters).GetDatas().Cast<SpellsCharacters>()
+                .Where(s => !s.NotInUse).ToArray();
+            _spellsHeroes = Csv.Tables.Get(Csv.Files.SpellsHeroes).GetDatas().Cast<SpellsHeroes>()
                 .Where(s => !s.NotInUse).ToArray();
         }
 
@@ -57,6 +60,13 @@ namespace ClashRoyale.Logic.Home.Decks
                 if (_spellsOther.Any(x => x.UnlockArena == chestArena))
                     cards.AddRange(_spellsOther.Where(x => x.UnlockArena == chestArena && x.Rarity == rarity.ToString())
                         .Select(data => new Card(28, data.GetInstanceId(), false)));
+            }
+
+            foreach (var chestArena in chestArenas)
+            {
+                if (_spellsHeroes.Any(x => x.UnlockArena == chestArena))
+                    cards.AddRange(_spellsHeroes.Where(x => x.UnlockArena == chestArena && x.Rarity == rarity.ToString())
+                        .Select(data => new Card(29, data.GetInstanceId(), false)));
             }
 
             if (rarity != Card.Rarity.Legendary)
@@ -121,6 +131,17 @@ namespace ClashRoyale.Logic.Home.Decks
 
                     break;
                 }
+
+                case 4:
+                {
+                    var datas = _spellsHeroes.Where(s => s.Rarity == rarity.ToString());
+
+                    var enumerable = datas.ToList();
+                    if (enumerable.ElementAt(random.Next(0, enumerable.Count)) is SpellsHeroes c)
+                        card = new Card(29, c.GetInstanceId(), false);
+
+                    break;
+                }
             }
 
             return card;
@@ -158,6 +179,14 @@ namespace ClashRoyale.Logic.Home.Decks
                 {
                     if (_spellsOther.ElementAt(random.Next(0, _spellsOther.Length)) is SpellsOther c)
                         card = new Card(28, c.GetInstanceId(), false);
+
+                    break;
+                }
+
+                case 29:
+                {
+                    if (_spellsCharacters.ElementAt(random.Next(0, _spellsHeroes.Length)) is SpellsHeroes c)
+                        card = new Card(29, c.GetInstanceId(), false);
 
                     break;
                 }
